@@ -162,8 +162,7 @@ class TcpServer {
     // destructors triggered by gc is in undefined order,
     // we need to call them manually.
     gc_delete(acceptor_);
-    for (auto i : *connList)
-      gc_delete(i);
+    gc_delete(connList);
     gc_delete(newConn);
   }
 
