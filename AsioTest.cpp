@@ -119,7 +119,7 @@ auto async_write_co = make_async<size_t>(
     });
 
 auto async_accept_co = make_async<void>(
-    [](gc<tcp::acceptor> a, tcp::socket* s, const NetAction<>& cb) {
+    [](gc<tcp::acceptor>& a, tcp::socket* s, const NetAction<>& cb) {
       a->async_accept(*s, cb);
     });
 
@@ -151,9 +151,8 @@ class TcpConnection {
 
 class TcpServer {
  public:
-  TcpServer(io_context& io_context)
-      : acceptor_{
-            gc_new<tcp::acceptor>(io_context, tcp::endpoint(tcp::v4(), 13))} {
+  TcpServer(io_context& ctx)
+      : acceptor_{gc_new<tcp::acceptor>(ctx, tcp::endpoint(tcp::v4(), 13))} {
     start_accept();
   }
 
@@ -247,7 +246,7 @@ int main() {
     printf("[%10s] elapsed time: %fs\n", tag, elapsed_seconds.count());
   };
 
-  if (1) {
+  if (0) {
     profiled("gc int", [] { gc<int> p(111); });
     profiled("raw int", [] { new int(111); });
   }
