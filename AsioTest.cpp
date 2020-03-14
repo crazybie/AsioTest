@@ -237,6 +237,21 @@ int main() {
 #ifdef _WIN32
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+
+  auto profiled = [](const char* tag, auto cb) {
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 10000 * 100; i++)
+      cb();
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    printf("[%10s] elapsed time: %fs\n", tag, elapsed_seconds.count());
+  };
+
+  if (1) {
+    profiled("gc int", [] { gc<int> p(111); });
+    profiled("raw int", [] { new int(111); });
+  }
+
   std::thread s(client_main);
   s.detach();
 
