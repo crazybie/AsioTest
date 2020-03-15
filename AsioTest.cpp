@@ -132,7 +132,7 @@ class TcpConnection {
     auto cnt = 0;
     CoBegin(bool) {
       message_ = make_daytime_string();
-      while (cnt++ < 1000) {
+      while (cnt++ < 100) {
         CoAwaitData(len, async_write_co(&socket_, &message_));
       }
       message_ = "quit";
