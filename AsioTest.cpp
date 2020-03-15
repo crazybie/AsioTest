@@ -2,8 +2,6 @@
 // begins and ends there.
 //
 
-#include "pch.h"
-
 #include <array>
 #include <asio.hpp>
 #include <iostream>
@@ -11,10 +9,7 @@
 #include <tuple>
 
 #include "co/coroutine.h"
-
-#ifdef _WIN32
-#include <crtdbg.h>
-#endif
+#include "pch.h"
 
 using namespace std;
 using namespace asio;
@@ -65,7 +60,7 @@ auto make_async_index(F f, index_sequence<idx...>) {
         }
       });
     }
-    CoEnd()
+    CoEnd();
   };
 }
 
@@ -82,7 +77,7 @@ auto make_async_index_void(F f, index_sequence<idx...>) {
         }
       });
     }
-    CoEnd()
+    CoEnd();
   };
 }
 
@@ -109,10 +104,6 @@ using namespace asio_co_helper;
 
 //////////////////////////////////////////////////////////////////////////
 
-std::string make_daytime_string() {
-  time_t now = time(0);
-  return ctime(&now);
-}
 auto async_write_co = make_async<size_t>(
     [](tcp::socket* s, string* data, const NetAction<size_t>& cb) {
       async_write(*s, buffer(*data), cb);
@@ -127,6 +118,11 @@ bool server_quit = false;
 
 class TcpConnection {
  public:
+  std::string make_daytime_string() {
+    time_t now = time(0);
+    return ctime(&now);
+  }
+
   PromisePtr<bool> start() {
     size_t len = 0;
     auto cnt = 0;
@@ -139,7 +135,7 @@ class TcpConnection {
       CoAwait(async_write_co(&socket_, &message_));
       CoReturn(true);
     }
-    CoEnd()
+    CoEnd();
   }
 
   TcpConnection(io_context& io_context) : socket_(io_context) {}
@@ -207,6 +203,7 @@ int client_main() {
     socket.connect(tcp::endpoint(ip::address_v4::from_string("127.0.0.1"), 13));
     cout << "connected to server" << endl;
 
+    string data;
     for (;;) {
       string buf(128, 0);
       error_code error;
@@ -215,7 +212,8 @@ int client_main() {
       buf[len] = '\0';
       cout << "data len:" << len << endl;
       cout << buf;
-      if (buf.find("quit") != string::npos)
+      data += buf;
+      if (data.rfind("quit") != string::npos)
         break;
 
       if (error == error::eof)
@@ -233,27 +231,9 @@ int client_main() {
 }
 
 int main() {
-#ifdef _WIN32
-  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif
-
-  auto profiled = [](const char* tag, auto cb) {
-    auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < 10000 * 100; i++)
-      cb();
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    printf("[%10s] elapsed time: %fs\n", tag, elapsed_seconds.count());
-  };
-
-  if (0) {
-    profiled("gc int", [] { gc<int> p(111); });
-    profiled("raw int", [] { new int(111); });
-  }
-
-  std::thread s(client_main);
+  std::thread s(server_main);
   s.detach();
-
-  server_main();
+  client_main();
+  gc_collect();
   return 0;
 }
