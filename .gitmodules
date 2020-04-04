@@ -1,0 +1,6 @@
+[submodule "gcptr"]
+	path = gcptr
+	url = https://github.com/crazybie/tgc.git
+[submodule "co"]
+	path = co
+	url = https://github.com/crazybie/co.git
