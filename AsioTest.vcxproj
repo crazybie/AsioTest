@@ -164,12 +164,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="co\coroutine.h" />
-    <ClInclude Include="gcptr\gcptr.h" />
+    <ClInclude Include="gcptr\tgc.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AsioTest.cpp" />
-    <ClCompile Include="gcptr\gcptr.cpp" />
+    <ClCompile Include="gcptr\tgc.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
