@@ -9,7 +9,6 @@
 #include <tuple>
 
 #include "co/coroutine.h"
-#include "pch.h"
 
 using namespace std;
 using namespace asio;
@@ -186,9 +185,12 @@ int server_main() {
     while (!server_quit) {
       exc.updateAll();
       ctx->poll();
+      gc_collect();
     }
+    gc_dumpStats();
     gc_delete(server);
     gc_delete(ctx);
+    gc_dumpStats();
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
   }
@@ -199,15 +201,15 @@ int server_main() {
 int client_main() {
   try {
     io_context io_context;
-    tcp::socket socket(io_context);
-    socket.connect(tcp::endpoint(ip::address_v4::from_string("127.0.0.1"), 13));
+    tcp::socket s(io_context);
+    s.connect(tcp::endpoint(ip::address_v4::from_string("127.0.0.1"), 13));
     cout << "connected to server" << endl;
 
     string data;
     for (;;) {
       string buf(128, 0);
       error_code error;
-      size_t len = socket.read_some(buffer(buf), error);
+      size_t len = s.read_some(buffer(buf), error);
 
       buf[len] = '\0';
       cout << "data len:" << len << endl;
@@ -231,9 +233,9 @@ int client_main() {
 }
 
 int main() {
-  std::thread s(server_main);
+  std::thread s(client_main);
   s.detach();
-  client_main();
-  gc_collect();
+
+  server_main();
   return 0;
 }
