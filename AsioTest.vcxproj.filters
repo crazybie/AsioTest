@@ -29,10 +29,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AsioTest.cpp">
+    <ClCompile Include="gcptr\tgc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gcptr\tgc.cpp">
+    <ClCompile Include="AsioTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
