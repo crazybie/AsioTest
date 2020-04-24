@@ -114,6 +114,7 @@ auto async_accept_co = make_async<void>(
     });
 
 bool server_quit = false;
+int messageCnt = 1000;
 
 class TcpConnection {
  public:
@@ -127,7 +128,7 @@ class TcpConnection {
     auto cnt = 0;
     CoBegin(bool) {
       message_ = make_daytime_string();
-      while (cnt++ < 100) {
+      while (cnt++ < messageCnt) {
         CoAwaitData(len, async_write_co(&socket_, &message_));
       }
       message_ = "quit";
@@ -180,16 +181,20 @@ class TcpServer {
 int server_main() {
   try {
     auto ctx = gc_new<io_context>();
-    co::Executor exc;
+    auto exc = gc_new<co::Executor>();
     auto server = gc_new<TcpServer>(*ctx);
     while (!server_quit) {
-      exc.updateAll();
+      exc->updateAll();
       ctx->poll();
       gc_collect();
     }
     gc_dumpStats();
     gc_delete(server);
     gc_delete(ctx);
+    gc_delete(exc);
+    gc_dumpStats();
+    cout << "after collect:" << endl;
+    gc_collect(1024);
     gc_dumpStats();
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;

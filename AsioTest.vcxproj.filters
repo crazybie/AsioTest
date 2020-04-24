@@ -35,5 +35,8 @@
     <ClCompile Include="AsioTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gcptr\test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
